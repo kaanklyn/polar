@@ -6,13 +6,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Sequence
 
-from astronomy import estimate_lat_from_polaris, parse_utc
-from vision import StarPoint, detect_star_points, pixel_to_alt_az
+from astronomy import parse_utc
+from vision import StarPoint, detect_star_points
 
 
 @dataclass
 class PhotoEstimate:
-    latitude_deg: float
+    latitude_deg: float | None
     longitude_deg: float | None
     confidence: float
     note: str
@@ -22,32 +22,18 @@ def estimate_from_detected_stars(width: int, height: int, stars: Sequence[StarPo
     if not stars:
         raise ValueError("Yıldız noktası bulunamadı.")
 
-    # Kullanıcı isteğine göre sabit varsayım:
-    # Telefon arka kamera direkt gökyüzüne bakıyor (zenith), yani camera_alt = 90.
-    camera_az_deg = 0.0
-    camera_alt_deg = 90.0
-    hfov_deg = 60.0
-    vfov_deg = 60.0
-
-    highest = min(stars, key=lambda s: s.y)
-    polaris_alt, _ = pixel_to_alt_az(
-        highest.x,
-        highest.y,
-        width,
-        height,
-        camera_az_deg,
-        camera_alt_deg,
-        hfov_deg,
-        vfov_deg,
-    )
-    latitude = estimate_lat_from_polaris(polaris_alt)
-
-    # Bu MVP'de yalnız fotoğraf+tarih ile boylam güvenilir hesaplanamaz.
+    # Önemli düzeltme:
+    # Sadece "fotoğraf + tarih" ile ve yıldız kimliği bilinmeden,
+    # güvenilir enlem/boylam üretmek fiziksel olarak mümkün değildir.
+    # Önceki sürümde bu yüzden 90° gibi yanıltıcı değerler üretilebiliyordu.
     return PhotoEstimate(
-        latitude_deg=latitude,
+        latitude_deg=None,
         longitude_deg=None,
-        confidence=0.45,
-        note="Bu sürümde sadece enlem tahmini yapılır. Boylam için yıldız kimlik eşleme gerekir.",
+        confidence=0.0,
+        note=(
+            "Bu girdi setiyle (yalnız fotoğraf+tarih) konum güvenilir hesaplanamaz. "
+            "En az bir yıldız kimliği (ör. Polaris) veya IMU/yön bilgisi gerekir."
+        ),
     )
 
 

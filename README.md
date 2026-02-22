@@ -10,8 +10,9 @@
 
 Bu sürümde kullanıcıdan başka teknik parametre istenmez.
 
-> Not: Bu sade modda güvenilir şekilde yalnızca **enlem** tahmini yapılır.
-> Boylam için yıldız kimlik eşlemesi (star matching) gerekir; sonraki adımda eklenebilir.
+> Not: Bu sürüm artık yanlış/yanıltıcı sayı vermemek için, yalnızca fotoğraf+tarih ile
+> **enlem/boylam hesaplamaz**.
+> Güvenilir sonuç için yıldız kimliği (ör. Polaris) veya IMU/yön bilgisi gerekir.
 
 ## 1) Kurulum
 

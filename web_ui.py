@@ -124,8 +124,8 @@ class Handler(BaseHTTPRequestHandler):
                 _, result = estimate_from_image_and_utc(tmp_path, utc)
                 result_html = (
                     f"<hr><h3>Sonuç</h3>"
-                    f"<p><b>Enlem:</b> {result.latitude_deg:.5f}°</p>"
-                    f"<p><b>Boylam:</b> Hesaplanamadı (MVP)</p>"
+                    f"<p><b>Enlem:</b> {'Hesaplanamadı' if result.latitude_deg is None else f'{result.latitude_deg:.5f}°'}</p>"
+                    f"<p><b>Boylam:</b> {'Hesaplanamadı' if result.longitude_deg is None else f'{result.longitude_deg:.5f}°'}</p>"
                     f"<p><b>Güven:</b> {result.confidence:.2f}</p>"
                     f"<p><b>Not:</b> {result.note}</p>"
                 )
