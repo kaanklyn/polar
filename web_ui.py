@@ -129,6 +129,12 @@ class Handler(BaseHTTPRequestHandler):
                     f"<p><b>Güven:</b> {result.confidence:.2f}</p>"
                     f"<p><b>Not:</b> {result.note}</p>"
                 )
+                if result.matched_stars:
+                    stars_html = ''.join(
+                        f'<li>{m.name} (RA={m.ra_deg:.2f}, Dec={m.dec_deg:.2f}, skor={m.score:.2f})</li>'
+                        for m in result.matched_stars
+                    )
+                    result_html += f'<p><b>Tanınan yıldızlar:</b></p><ul>{stars_html}</ul>'
             except Exception as exc:
                 result_html = f"<p style='color:red'>Hata: {exc}</p>"
         finally:
