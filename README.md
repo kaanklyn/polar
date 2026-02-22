@@ -36,3 +36,16 @@ Aç: `http://localhost:8000`
 ```bash
 python3 -m unittest -v
 ```
+
+
+## Katalogı güvenilir kaynaktan güncelleme
+
+Aşağıdaki komut internetten HYG veri setini indirir, parlak yıldız alt kümesini üretir ve dosyaları günceller:
+
+```bash
+python3 scripts/update_catalog.py
+```
+
+Üretilen dosyalar:
+- `data/bright_stars.csv`
+- `data/bright_stars.source.json` (kaynak URL, indirme zamanı, checksum)
