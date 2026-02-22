@@ -53,3 +53,5 @@ python3 -m unittest -v
 ## Not
 
 - `web_ui.py` Python 3.13+ ile uyumludur (`cgi` modülü kullanılmaz).
+
+- Windows'ta geçici dosya izin hatasını önlemek için web arayüzü temp dosyayı kilitlemeden oluşturur.

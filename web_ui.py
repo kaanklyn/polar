@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
+import os
 from typing import Dict, Tuple
 
 from pipeline import estimate_from_image_and_utc
@@ -114,11 +115,13 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         suffix = Path(image_name or "upload.jpg").suffix or ".jpg"
-        with NamedTemporaryFile(suffix=suffix, delete=True) as tmp:
-            tmp.write(image_content)
-            tmp.flush()
+        fd, tmp_path = mkstemp(suffix=suffix)
+        try:
+            with os.fdopen(fd, "wb") as tmp_file:
+                tmp_file.write(image_content)
+
             try:
-                _, result = estimate_from_image_and_utc(tmp.name, utc)
+                _, result = estimate_from_image_and_utc(tmp_path, utc)
                 result_html = (
                     f"<hr><h3>Sonuç</h3>"
                     f"<p><b>Enlem:</b> {result.latitude_deg:.5f}°</p>"
@@ -128,6 +131,11 @@ class Handler(BaseHTTPRequestHandler):
                 )
             except Exception as exc:
                 result_html = f"<p style='color:red'>Hata: {exc}</p>"
+        finally:
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
 
         self._send_html(HTML_FORM.format(result_block=result_html))
 
