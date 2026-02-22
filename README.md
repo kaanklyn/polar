@@ -1,12 +1,17 @@
 # Polar Offline Star Navigation Prototype
 
-Bu proje, GPS ve internet olmadan yıldız gözlemleriyle konum tahmini yapmaya yönelik bir prototiptir.
+İstediğin sade kullanım bu sürümde hazır:
 
-## Yeni: Fotoğraftan yıldız okuma (MVP)
+- Sadece **fotoğraf yükle**
+- Sadece **tarih/saat (UTC) gir**
+- Telefonun arka kamerası gökyüzüne bakıyor kabulü sabit (MVP)
 
-Artık uygulama `--image` parametresi ile gökyüzü fotoğrafından parlak yıldız noktalarını otomatik çıkarmaya çalışır.
+## Ne değişti?
 
-> Bu sürüm hâlâ MVP'dir: Yıldızın kimliğini (RA/Dec) otomatik tanımaz, referans yıldızın `--star-ra` ve `--star-dec` bilgisi kullanıcıdan alınır.
+Bu sürümde kullanıcıdan başka teknik parametre istenmez.
+
+> Not: Bu sade modda güvenilir şekilde yalnızca **enlem** tahmini yapılır.
+> Boylam için yıldız kimlik eşlemesi (star matching) gerekir; sonraki adımda eklenebilir.
 
 ## 1) Kurulum
 
@@ -16,42 +21,29 @@ source .venv/bin/activate
 pip install pillow
 ```
 
-## 2) Manuel kullanım (fotoğrafsız)
+## 2) Web arayüzü ile çalıştır (önerilen)
 
 ```bash
-python3 app.py --utc "2026-01-15T22:30:00Z" --polaris-alt 72.1 --star-ra 88.7929 --star-dec 7.4071 --star-alt 34.2 --star-az 140.0
+python3 web_ui.py
 ```
 
-## 3) Fotoğraflı kullanım
+Tarayıcıdan aç:
+
+- `http://localhost:8000`
+
+Formda sadece:
+- `UTC tarih/saat`
+- `fotoğraf`
+
+girip **Hesapla** butonuna bas.
+
+## 3) Komut satırı alternatifi
 
 ```bash
-python3 app.py \
-  --utc "2026-01-15T22:30:00Z" \
-  --image "sample_sky.jpg" \
-  --star-ra 88.7929 \
-  --star-dec 7.4071 \
-  --camera-az 0 \
-  --camera-alt 45 \
-  --hfov 60 \
-  --vfov 40
+python3 app.py --utc "2026-01-15T22:30:00Z" --image "sample_sky.jpg"
 ```
 
-Fotoğraflı modda:
-- En parlak yıldız referans yıldız ölçümü için kullanılır (`star-alt`, `star-az` otomatikleşir).
-- `--polaris-alt` verilmezse, görüntüde en üstteki parlak nokta Polaris yaklaşımı için kullanılır.
-
-## Parametreler
-
-- `--utc`: ISO-8601 UTC zamanı
-- `--star-ra`, `--star-dec`: Referans yıldızın katalog değeri (derece)
-- `--polaris-alt`: (opsiyonel) Polaris yüksekliği
-- `--star-alt`, `--star-az`: (opsiyonel, manuel modda gerekli)
-- `--image`: Gökyüzü fotoğrafı
-- `--camera-az`: Kameranın baktığı azimut
-- `--camera-alt`: Kameranın baktığı yükseklik
-- `--hfov`, `--vfov`: Kamera görüş açıları
-
-## Test
+## 4) Test
 
 ```bash
 python3 -m unittest -v
