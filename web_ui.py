@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import cgi
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from tempfile import NamedTemporaryFile
+from typing import Dict, Tuple
 
 from pipeline import estimate_from_image_and_utc
 
@@ -26,6 +26,56 @@ HTML_FORM = """<!doctype html>
 </html>"""
 
 
+def _parse_multipart(content_type: str, body: bytes) -> Dict[str, Tuple[str | None, bytes]]:
+    """Minimal multipart/form-data parser.
+
+    Returns: {field_name: (filename_or_none, value_bytes)}
+    """
+    marker = "boundary="
+    if marker not in content_type:
+        raise ValueError("multipart boundary bulunamadı")
+
+    boundary = content_type.split(marker, 1)[1].strip().strip('"')
+    boundary_bytes = ("--" + boundary).encode("utf-8")
+
+    fields: Dict[str, Tuple[str | None, bytes]] = {}
+    parts = body.split(boundary_bytes)
+    for part in parts:
+        part = part.strip()
+        if not part or part == b"--":
+            continue
+
+        if part.endswith(b"--"):
+            part = part[:-2].strip()
+
+        if b"\r\n\r\n" not in part:
+            continue
+
+        header_block, value = part.split(b"\r\n\r\n", 1)
+        headers = header_block.decode("utf-8", errors="ignore").split("\r\n")
+        value = value.rstrip(b"\r\n")
+
+        disp = next((h for h in headers if h.lower().startswith("content-disposition:")), "")
+        if "name=" not in disp:
+            continue
+
+        def _extract_param(text: str, key: str) -> str | None:
+            token = key + '="'
+            if token not in text:
+                return None
+            rest = text.split(token, 1)[1]
+            return rest.split('"', 1)[0]
+
+        name = _extract_param(disp, "name")
+        filename = _extract_param(disp, "filename")
+        if not name:
+            continue
+
+        fields[name] = (filename, value)
+
+    return fields
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send_html(self, content: str) -> None:
         data = content.encode("utf-8")
@@ -39,21 +89,33 @@ class Handler(BaseHTTPRequestHandler):
         self._send_html(HTML_FORM.format(result_block=""))
 
     def do_POST(self):  # noqa: N802
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={"REQUEST_METHOD": "POST", "CONTENT_TYPE": self.headers.get("Content-Type", "")},
-        )
-        utc = form.getfirst("utc", "").strip()
-        image_item = form["image"] if "image" in form else None
+        content_length = int(self.headers.get("Content-Length", "0"))
+        content_type = self.headers.get("Content-Type", "")
 
-        if not utc or image_item is None or not getattr(image_item, "file", None):
+        if content_length <= 0 or "multipart/form-data" not in content_type:
+            self._send_html(HTML_FORM.format(result_block="<p style='color:red'>Geçersiz istek.</p>"))
+            return
+
+        body = self.rfile.read(content_length)
+
+        try:
+            fields = _parse_multipart(content_type, body)
+        except Exception as exc:
+            self._send_html(HTML_FORM.format(result_block=f"<p style='color:red'>Form ayrıştırma hatası: {exc}</p>"))
+            return
+
+        utc_bytes = fields.get("utc", (None, b""))[1]
+        utc = utc_bytes.decode("utf-8", errors="ignore").strip()
+
+        image_name, image_content = fields.get("image", (None, b""))
+
+        if not utc or not image_content:
             self._send_html(HTML_FORM.format(result_block="<p style='color:red'>UTC ve fotoğraf zorunlu.</p>"))
             return
 
-        suffix = Path(getattr(image_item, "filename", "upload.jpg") or "upload.jpg").suffix or ".jpg"
+        suffix = Path(image_name or "upload.jpg").suffix or ".jpg"
         with NamedTemporaryFile(suffix=suffix, delete=True) as tmp:
-            tmp.write(image_item.file.read())
+            tmp.write(image_content)
             tmp.flush()
             try:
                 _, result = estimate_from_image_and_utc(tmp.name, utc)

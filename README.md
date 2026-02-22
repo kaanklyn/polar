@@ -48,3 +48,8 @@ python3 app.py --utc "2026-01-15T22:30:00Z" --image "sample_sky.jpg"
 ```bash
 python3 -m unittest -v
 ```
+
+
+## Not
+
+- `web_ui.py` Python 3.13+ ile uyumludur (`cgi` modülü kullanılmaz).
