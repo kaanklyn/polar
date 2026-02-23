@@ -12,6 +12,9 @@ from star_matcher import MatchedStar, match_stars_from_points
 from vision import StarPoint, detect_star_points
 from location_solver import solve_location_from_matches
 
+MAX_ACCEPTABLE_RMS_DEG = 12.0
+SOFT_RMS_DEG = 6.0
+
 
 @dataclass
 class PhotoEstimate:
@@ -56,7 +59,21 @@ def estimate_from_detected_stars(width: int, height: int, stars: Sequence[StarPo
             matched_stars=matched,
         )
 
-    loc_conf = max(0.0, min(1.0, 1.0 - (solved.rms_alt_error_deg / 20.0)))
+    # Güvenlik filtresi: RMS çok yüksekse koordinatı yayımlama.
+    if solved.rms_alt_error_deg > MAX_ACCEPTABLE_RMS_DEG:
+        return PhotoEstimate(
+            latitude_deg=None,
+            longitude_deg=None,
+            location_confidence=0.0,
+            match_confidence=round(avg_score, 2),
+            note=(
+                f"Ön eşleşme var ama çözüm kalitesi düşük (RMS: {solved.rms_alt_error_deg:.2f}°). "
+                "Koordinat güvenilir olmadığı için gösterilmiyor."
+            ),
+            matched_stars=matched,
+        )
+
+    loc_conf = max(0.0, min(1.0, 1.0 - (solved.rms_alt_error_deg / SOFT_RMS_DEG)))
     return PhotoEstimate(
         latitude_deg=solved.latitude_deg,
         longitude_deg=solved.longitude_deg,

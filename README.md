@@ -59,3 +59,5 @@ Not: `Konum Güveni` ile `Ön Eşleşme Skoru` farklıdır. Solver tamamlanana k
 - Bu sürüm Stellarium ekran görüntülerine göre kalibre edilmiş hızlı bir yaklaşımdır.
 - Kamera merkezinin zenith'e yakın olduğu varsayılır.
 - Sonuçlar yaklaşık değerdir; saha kullanımından önce gerçek veriyle kalibrasyon gerekir.
+
+- RMS hata eşiği yüksekse (varsayılan >12°), sistem yanlış kesinlik vermemek için koordinatı göstermez.
