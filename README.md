@@ -49,3 +49,6 @@ python3 scripts/update_catalog.py
 Üretilen dosyalar:
 - `data/bright_stars.csv`
 - `data/bright_stars.source.json` (kaynak URL, indirme zamanı, checksum)
+
+
+Not: `Konum Güveni` ile `Yıldız Eşleşme Skoru` farklıdır. Solver tamamlanana kadar konum güveni 0.00 olur.

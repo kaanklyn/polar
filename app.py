@@ -16,11 +16,12 @@ def main() -> None:
 
     print("Enlem  : Hesaplanamadı")
     print("Boylam : Hesaplanamadı")
-    print(f"Güven  : {result.confidence:.2f}")
+    print(f"Konum Güveni        : {result.location_confidence:.2f}")
+    print(f"Yıldız Eşleşme Skoru: {result.match_confidence:.2f}")
     print(f"Not    : {result.note}")
 
     if result.matched_stars:
-        print("\nEşleşen yıldızlar:")
+        print("\nTanınan yıldızlar:")
         for m in result.matched_stars:
             print(f"- {m.name} (RA={m.ra_deg:.3f}, Dec={m.dec_deg:.3f}, skor={m.score:.2f})")
 

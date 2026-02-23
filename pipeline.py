@@ -16,7 +16,8 @@ from vision import StarPoint, detect_star_points
 class PhotoEstimate:
     latitude_deg: float | None
     longitude_deg: float | None
-    confidence: float
+    location_confidence: float
+    match_confidence: float
     note: str
     matched_stars: list[MatchedStar]
 
@@ -32,7 +33,8 @@ def estimate_from_detected_stars(width: int, height: int, stars: Sequence[StarPo
         return PhotoEstimate(
             latitude_deg=None,
             longitude_deg=None,
-            confidence=0.0,
+            location_confidence=0.0,
+            match_confidence=0.0,
             note=(
                 "Yıldız kimliği güvenilir çıkarılamadı. Daha net Stellarium görüntüsü yükleyin "
                 "veya daha fazla parlak yıldız içeren fotoğraf kullanın."
@@ -40,13 +42,16 @@ def estimate_from_detected_stars(width: int, height: int, stars: Sequence[StarPo
             matched_stars=[],
         )
 
-    # Hızlı MVP: yıldız tanıma var; konum solver bir sonraki adım.
     avg_score = sum(m.score for m in matched) / len(matched)
     return PhotoEstimate(
         latitude_deg=None,
         longitude_deg=None,
-        confidence=round(avg_score, 2),
-        note="Yıldız tanıma başarılı. Sonraki adım: bu eşleşmelerle lat/lon solver entegrasyonu.",
+        location_confidence=0.0,
+        match_confidence=round(avg_score, 2),
+        note=(
+            "Yıldız tanıma başarılı. Bu skor yalnızca yıldız eşleşme güvenidir; "
+            "lat/lon solver henüz olmadığı için konum güveni 0.00'dır."
+        ),
         matched_stars=matched,
     )
 
