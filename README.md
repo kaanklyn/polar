@@ -51,4 +51,4 @@ python3 scripts/update_catalog.py
 - `data/bright_stars.source.json` (kaynak URL, indirme zamanı, checksum)
 
 
-Not: `Konum Güveni` ile `Yıldız Eşleşme Skoru` farklıdır. Solver tamamlanana kadar konum güveni 0.00 olur.
+Not: `Konum Güveni` ile `Ön Eşleşme Skoru` farklıdır. Solver tamamlanana kadar konum güveni 0.00 olur.

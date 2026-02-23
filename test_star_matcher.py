@@ -16,6 +16,8 @@ class StarMatcherTests(unittest.TestCase):
         ]
         out = match_stars_from_points(stars, catalog)
         self.assertIsInstance(out, list)
+        for m in out:
+            self.assertLessEqual(m.score, 0.85)
 
 
 if __name__ == "__main__":

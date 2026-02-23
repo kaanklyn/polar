@@ -17,7 +17,7 @@ def main() -> None:
     print("Enlem  : Hesaplanamadı")
     print("Boylam : Hesaplanamadı")
     print(f"Konum Güveni        : {result.location_confidence:.2f}")
-    print(f"Yıldız Eşleşme Skoru: {result.match_confidence:.2f}")
+    print(f"Ön Eşleşme Skoru: {result.match_confidence:.2f}")
     print(f"Not    : {result.note}")
 
     if result.matched_stars:

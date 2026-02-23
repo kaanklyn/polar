@@ -49,8 +49,8 @@ def estimate_from_detected_stars(width: int, height: int, stars: Sequence[StarPo
         location_confidence=0.0,
         match_confidence=round(avg_score, 2),
         note=(
-            "Yıldız tanıma başarılı. Bu skor yalnızca yıldız eşleşme güvenidir; "
-            "lat/lon solver henüz olmadığı için konum güveni 0.00'dır."
+            "Ön yıldız eşleşmesi bulundu. Bu skor muhafazakâr bir ön eşleşme skorudur "
+            "(kesin doğrulama değildir). lat/lon solver henüz olmadığı için konum güveni 0.00'dır."
         ),
         matched_stars=matched,
     )

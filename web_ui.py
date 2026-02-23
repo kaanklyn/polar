@@ -127,7 +127,7 @@ class Handler(BaseHTTPRequestHandler):
                     f"<p><b>Enlem:</b> {'Hesaplanamadı' if result.latitude_deg is None else f'{result.latitude_deg:.5f}°'}</p>"
                     f"<p><b>Boylam:</b> {'Hesaplanamadı' if result.longitude_deg is None else f'{result.longitude_deg:.5f}°'}</p>"
                     f"<p><b>Konum Güveni:</b> {result.location_confidence:.2f}</p>"
-                    f"<p><b>Yıldız Eşleşme Skoru:</b> {result.match_confidence:.2f}</p>"
+                    f"<p><b>Ön Eşleşme Skoru:</b> {result.match_confidence:.2f}</p>"
                     f"<p><b>Not:</b> {result.note}</p>"
                 )
                 if result.matched_stars:

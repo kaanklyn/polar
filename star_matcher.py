@@ -55,6 +55,7 @@ def match_stars_from_points(
 
     best = None
     best_err = 1e9
+    second_best_err = 1e9
 
     for i_idx in itertools.combinations(range(len(img)), 3):
         ia, ib, ic = [img[k] for k in i_idx]
@@ -73,11 +74,22 @@ def match_stars_from_points(
             )
             err = abs(di[0] - dc[0]) + abs(di[1] - dc[1])
             if err < best_err:
+                second_best_err = best_err
                 best_err = err
                 best = (i_idx, c_idx)
+            elif err < second_best_err:
+                second_best_err = err
 
+    # Hard gate: if not close enough or ambiguous against 2nd best, reject.
     if best is None or best_err > 0.25:
         return []
+
+    if second_best_err < 1e9:
+        distinctiveness = (second_best_err - best_err) / max(second_best_err, 1e-9)
+        if distinctiveness < 0.15:
+            return []
+    else:
+        distinctiveness = 0.0
 
     i_idx, c_idx = best
     chosen_img = [img[k] for k in i_idx]
@@ -86,7 +98,12 @@ def match_stars_from_points(
     chosen_img.sort(key=lambda p: p.brightness, reverse=True)
     chosen_cat.sort(key=lambda p: p.mag)
 
-    score = max(0.0, 1.0 - min(1.0, best_err / 0.25))
+    fit_score = max(0.0, 1.0 - min(1.0, best_err / 0.25))
+    uniq_score = max(0.0, min(1.0, distinctiveness))
+
+    # Conservative MVP confidence: intentionally capped to avoid false certainty.
+    score = min(0.85, 0.7 * fit_score + 0.3 * uniq_score)
+
     out: List[MatchedStar] = []
     for ip, cs in zip(chosen_img, chosen_cat):
         out.append(
@@ -96,7 +113,7 @@ def match_stars_from_points(
                 name=cs.name,
                 ra_deg=cs.ra_deg,
                 dec_deg=cs.dec_deg,
-                score=score,
+                score=round(score, 2),
             )
         )
     return out
