@@ -27,7 +27,7 @@ class PipelineTests(unittest.TestCase):
         ]
         utc = datetime(2026, 1, 15, 22, 30, tzinfo=timezone.utc)
 
-        with patch("pipeline.solve_location_from_matches", return_value=SolvedLocation(10.0, 20.0, 35.0)):
+        with patch("pipeline.solve_location_from_matches", return_value=SolvedLocation(10.0, 20.0, 35.0, 0.0)):
             res = estimate_from_detected_stars(width=400, height=400, stars=stars, utc_dt=utc)
 
         self.assertIsNone(res.latitude_deg)

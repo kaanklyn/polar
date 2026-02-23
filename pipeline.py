@@ -79,7 +79,10 @@ def estimate_from_detected_stars(width: int, height: int, stars: Sequence[StarPo
         longitude_deg=solved.longitude_deg,
         location_confidence=round(loc_conf, 2),
         match_confidence=round(avg_score, 2),
-        note=f"Konum çözüldü (RMS yükseklik hatası: {solved.rms_alt_error_deg:.2f}°).",
+        note=(
+            f"Konum çözüldü (RMS yükseklik hatası: {solved.rms_alt_error_deg:.2f}°, "
+            f"azimut ofseti: {solved.azimuth_offset_deg:.1f}°)."
+        ),
         matched_stars=matched,
     )
 

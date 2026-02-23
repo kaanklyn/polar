@@ -61,3 +61,5 @@ Not: `Konum Güveni` ile `Ön Eşleşme Skoru` farklıdır. Solver tamamlanana k
 - Sonuçlar yaklaşık değerdir; saha kullanımından önce gerçek veriyle kalibrasyon gerekir.
 
 - RMS hata eşiği yüksekse (varsayılan >12°), sistem yanlış kesinlik vermemek için koordinatı göstermez.
+
+- Solver, ekranın dönük olma etkisini azaltmak için azimut ofsetini de optimize eder.

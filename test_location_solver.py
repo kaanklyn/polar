@@ -55,6 +55,8 @@ class LocationSolverTests(unittest.TestCase):
         self.assertGreaterEqual(solved.longitude_deg, -180.0)
         self.assertLessEqual(solved.longitude_deg, 180.0)
         self.assertLess(solved.rms_alt_error_deg, 90.0)
+        self.assertGreaterEqual(solved.azimuth_offset_deg, 0.0)
+        self.assertLess(solved.azimuth_offset_deg, 360.0)
 
 
 if __name__ == "__main__":

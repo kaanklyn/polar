@@ -14,6 +14,7 @@ class SolvedLocation:
     latitude_deg: float
     longitude_deg: float
     rms_alt_error_deg: float
+    azimuth_offset_deg: float
 
 
 def _alt_az_from_radec(lat_deg: float, lon_deg: float, utc_dt: datetime, ra_deg: float, dec_deg: float) -> tuple[float, float]:
@@ -50,7 +51,6 @@ def _observed_alt_az_from_pixel(
     zenith_angle = max(0.0, min(fov_deg / 2.0, zenith_angle))
     alt = 90.0 - zenith_angle
 
-    # assume north-up screenshot: up=0°, right=90°
     az = math.degrees(math.atan2(dx, -dy)) % 360.0
     return alt, az
 
@@ -76,41 +76,48 @@ def solve_location_from_matches(
         for m in ms
     ]
 
-    def score(lat: float, lon: float) -> float:
+    def score(lat: float, lon: float, az_offset: float) -> float:
         errs = []
         for m, (alt_obs, az_obs) in zip(ms, obs):
             alt_pred, az_pred = _alt_az_from_radec(lat, lon, utc_dt, m.ra_deg, m.dec_deg)
             alt_err = alt_pred - alt_obs
-            az_err = _ang_diff_deg(az_pred, az_obs)
+            az_err = _ang_diff_deg((az_pred + az_offset) % 360.0, az_obs)
             errs.append((alt_err / 8.0) ** 2 + (az_err / 30.0) ** 2)
         return math.sqrt(sum(errs) / len(errs))
 
-    best_lat, best_lon, best_err = 0.0, 0.0, 1e9
+    best_lat, best_lon, best_off, best_err = 0.0, 0.0, 0.0, 1e9
+
     for lat in range(-80, 81, 5):
         for lon in range(-180, 181, 5):
-            e = score(float(lat), float(lon))
-            if e < best_err:
-                best_err = e
-                best_lat, best_lon = float(lat), float(lon)
+            for off in range(0, 360, 10):
+                e = score(float(lat), float(lon), float(off))
+                if e < best_err:
+                    best_err = e
+                    best_lat, best_lon, best_off = float(lat), float(lon), float(off)
 
-    step = 2.0
-    while step >= 0.25:
+    step_latlon = 2.0
+    step_off = 5.0
+    while step_latlon >= 0.25:
         improved = True
         while improved:
             improved = False
-            for dlat in (-step, 0.0, step):
-                for dlon in (-step, 0.0, step):
-                    cand_lat = max(-89.0, min(89.0, best_lat + dlat))
-                    cand_lon = normalize_lon(best_lon + dlon)
-                    e = score(cand_lat, cand_lon)
-                    if e + 1e-9 < best_err:
-                        best_err = e
-                        best_lat, best_lon = cand_lat, cand_lon
-                        improved = True
-        step /= 2.0
+            for dlat in (-step_latlon, 0.0, step_latlon):
+                for dlon in (-step_latlon, 0.0, step_latlon):
+                    for doff in (-step_off, 0.0, step_off):
+                        cand_lat = max(-89.0, min(89.0, best_lat + dlat))
+                        cand_lon = normalize_lon(best_lon + dlon)
+                        cand_off = (best_off + doff) % 360.0
+                        e = score(cand_lat, cand_lon, cand_off)
+                        if e + 1e-9 < best_err:
+                            best_err = e
+                            best_lat, best_lon, best_off = cand_lat, cand_lon, cand_off
+                            improved = True
+        step_latlon /= 2.0
+        step_off /= 2.0
 
     return SolvedLocation(
         latitude_deg=round(best_lat, 4),
         longitude_deg=round(normalize_lon(best_lon), 4),
         rms_alt_error_deg=round(best_err * 8.0, 3),
+        azimuth_offset_deg=round(best_off, 3),
     )
