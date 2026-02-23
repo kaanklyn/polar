@@ -7,7 +7,7 @@ Bu sürüm hızlı geliştirme için **yıldız tanıma (star matching)** adım�
 - Fotoğraftan parlak yıldız noktalarını bulur.
 - Dahili parlak yıldız kataloğu ile üçgen oranları üzerinden yıldız tanımayı dener.
 - Eşleşen yıldız isimlerini listeler.
-- Henüz lat/lon solver tamamlanmadığı için koordinat döndürmez.
+- Yıldız eşleşmesi yeterliyse yaklaşık lat/lon üretir (Stellarium odaklı hızlı solver).
 
 ## Kurulum
 
@@ -52,3 +52,10 @@ python3 scripts/update_catalog.py
 
 
 Not: `Konum Güveni` ile `Ön Eşleşme Skoru` farklıdır. Solver tamamlanana kadar konum güveni 0.00 olur.
+
+
+## Solver varsayımları (önemli)
+
+- Bu sürüm Stellarium ekran görüntülerine göre kalibre edilmiş hızlı bir yaklaşımdır.
+- Kamera merkezinin zenith'e yakın olduğu varsayılır.
+- Sonuçlar yaklaşık değerdir; saha kullanımından önce gerçek veriyle kalibrasyon gerekir.

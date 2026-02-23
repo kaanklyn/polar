@@ -14,8 +14,15 @@ def main() -> None:
     args = build_parser().parse_args()
     _, result = estimate_from_image_and_utc(args.image, args.utc)
 
-    print("Enlem  : Hesaplanamadı")
-    print("Boylam : Hesaplanamadı")
+    if result.latitude_deg is None:
+        print("Enlem  : Hesaplanamadı")
+    else:
+        print(f"Enlem  : {result.latitude_deg:.5f}°")
+
+    if result.longitude_deg is None:
+        print("Boylam : Hesaplanamadı")
+    else:
+        print(f"Boylam : {result.longitude_deg:.5f}°")
     print(f"Konum Güveni        : {result.location_confidence:.2f}")
     print(f"Ön Eşleşme Skoru: {result.match_confidence:.2f}")
     print(f"Not    : {result.note}")
