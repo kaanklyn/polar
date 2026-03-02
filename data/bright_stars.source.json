@@ -1,0 +1,8 @@
+{
+  "source_url": "manual-seed",
+  "downloaded_at_utc": null,
+  "source_sha256": null,
+  "row_count": 25,
+  "format": "name,ra_deg,dec_deg,mag",
+  "generator": "manual"
+}
